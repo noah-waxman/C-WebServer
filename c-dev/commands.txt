@@ -1,0 +1,6 @@
+# docker exec -it --user root c-dev-2024 apt-get install your-package-name
+
+# rebuild and restart
+docker build -t c-dev ~/c-dev
+
+docker run -d --name c-dev-2024 -p 8080:8080 -v "$HOME/c-dev-2024:/home/coder/project" --user "$(id -u):$(id -g)" c-dev-2024
