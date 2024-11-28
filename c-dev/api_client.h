@@ -10,5 +10,6 @@ typedef struct {
 
 ApiClient* init_api_client(void);
 cJSON* get_data(ApiClient* client, char* url); 
+void api_clean_up(ApiClient* client);
 
 #endif
