@@ -34,9 +34,10 @@ WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
 }
 
 /* Function to fetch data from a URL and return it as JSON */
-cJSON* get_data(ApiClient* client, char* url) {
+cJSON* get_data(ApiClient* client, char* url, char* header, char* post_data) {
     struct MemoryStruct chunk;
     CURLcode res;
+    struct curl_slist *headers = NULL;
     
     /* Initialize memory chunk */
     chunk.memory = malloc(1);
@@ -47,6 +48,17 @@ cJSON* get_data(ApiClient* client, char* url) {
     curl_easy_setopt(client->curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
     curl_easy_setopt(client->curl, CURLOPT_WRITEDATA, (void *)&chunk);
     curl_easy_setopt(client->curl, CURLOPT_USERAGENT, "libcurl-agent/1.0");
+
+    /* Check if header parameter was given */
+    if (header != NULL) {
+        headers = curl_slist_append(headers, header);
+        curl_easy_setopt(client->curl, CURLOPT_HTTPHEADER, headers);
+    }
+
+    /* Check if post_data parameter was given; if so, we POST */
+    if (post_data != NULL) {
+        curl_easy_setopt(client->curl, CURLOPT_POSTFIELDS, post_data);
+    }
 
     /* Perform the HTTP request */
     res = curl_easy_perform(client->curl);
@@ -81,4 +93,5 @@ ApiClient* init_api_client(void) {
 
 void api_clean_up(ApiClient* client) {
     curl_easy_cleanup(client->curl);
+    curl_global_cleanup();
 }
